@@ -98,6 +98,8 @@ def _enrich_data(df_raw: pd.DataFrame) -> pd.DataFrame:
     for military_time_col in ["CRSDepTime", "DepTime", "CRSArrTime", "ArrTime"]:
         df[military_time_col] = pd.to_datetime(df[military_time_col].astype(str).str.zfill(4), format="%H%M", errors="coerce").dt.time
     df['ScheduledDurationMinutes'] = df.apply(lambda row: calculate_time_difference(row['CRSDepTime'], row['CRSArrTime']), axis=1)
+    df["month"] = df["FlightDate"].dt.month
+    df["is_weekend"] = df["FlightDate"].dt.dayofweek.isin([5, 6])
     df["day_of_week"] = df["FlightDate"].dt.dayofweek.astype(str) + "_" + df["FlightDate"].dt.day_name()
     df["hour_of_day"] = [time.hour for time in df["CRSDepTime"]]
 
