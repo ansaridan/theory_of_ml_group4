@@ -145,3 +145,6 @@ docs/_build/
 
 # Cache files
 *.cache
+
+# CatBoost
+catboost_info
