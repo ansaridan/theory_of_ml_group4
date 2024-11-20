@@ -14,4 +14,4 @@ conda activate theory_of_ml
 ```
 
 # Downloading the data
-The data for this project is too large to store in GitHub, and so is stored on [Google Drive](https://drive.google.com/file/d/1V6f3CkmjVoD6He4m2fEl9q3PfO_Ncg9n/view). Go there and download all of the data CSVs into a a folder `theory_of_ml_group4/data/{file}.csv`.
+The data for this project is too large to store in GitHub, and so is stored on [Google Drive](https://drive.google.com/file/d/1BLuw19U9oVSx9lpFmKSAo3gCbSOqrti2/view?usp=drive_link). Go there and download all of the data CSVs into a a folder `theory_of_ml_group4/data/{file}.csv`.

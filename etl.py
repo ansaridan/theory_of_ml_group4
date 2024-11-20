@@ -61,7 +61,7 @@ def calculate_time_difference(start_time, end_time):
         end_dt += dt.timedelta(days=1)
     return (end_dt - start_dt).total_seconds() / 60
 
-def _ingest_data() -> pd.DataFrame:
+def _ingest_data(sample_frac=1.0) -> pd.DataFrame:
     """Ingests the data from the CSV files and returns a DataFrame."""
 
     # Define the regex pattern for the filenames
@@ -76,6 +76,7 @@ def _ingest_data() -> pd.DataFrame:
             log.info(f"reading {file}")
             # Read the CSV and append to the list
             df_month = pd.read_csv(file, low_memory=False)
+            df_month = df_month.sample(frac=sample_frac, random_state=42)
             dataframes.append(df_month[SELECTED_COLS])
         else:
             log.info(f"skipped {file}")
@@ -126,8 +127,8 @@ def _enrich_data(df_raw: pd.DataFrame) -> pd.DataFrame:
     return df
     
 
-def get_flight_data() -> pd.DataFrame:
+def get_flight_data(sample_frac=1.0) -> pd.DataFrame:
     """Returns the enriched flight data."""
-    df_raw = _ingest_data()
+    df_raw = _ingest_data(sample_frac=sample_frac)
     df = _enrich_data(df_raw)
     return df
