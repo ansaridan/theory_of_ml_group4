@@ -27,7 +27,7 @@ feature_base_cols = [
     "DestAirportShortName",
     "DestDivision",
     # flight features
-    "Reporting_Airline",
+    "Airline_Name",
     "Distance",
     "ScheduledDurationMinutes",
     # time features
@@ -119,7 +119,7 @@ class FlightPerformanceModel():
             },
             one_hot_features = [
                 "OriginAirportShortName", "DestAirportShortName",
-                "OriginDivision", "DestDivision", "Reporting_Airline",
+                "OriginDivision", "DestDivision", "Airline_Name",
             ],
             top_k_features = [
                 "OriginAirportShortName", "DestAirportShortName",
