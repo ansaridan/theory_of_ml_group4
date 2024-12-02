@@ -12,6 +12,7 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 from sklearn.linear_model import LogisticRegression, LinearRegression
 
+from pathlib import Path
 import logging
 log = logging.getLogger("modeling")
 log.setLevel(logging.INFO)
@@ -35,6 +36,9 @@ feature_base_cols = [
     "CRSDepTime",
 ]
 
+DATA_PATH = Path() / "data"
+AIRLINE_CODES_FILENAME = "airline_codes_map.csv"
+AIRPORT_CODES_FILENAME = "airport_id_map.csv"
 
 class DateTimeFeatureExtractor(BaseEstimator, TransformerMixin):
     def __init__(self, flight_date_col, dep_time_col, derived_columns=["is_weekend", "month", "day_of_week", "hour_of_day"]):
@@ -83,6 +87,28 @@ class TopKPreprocessor(BaseEstimator, TransformerMixin):
         X = X.copy()
         for col in self.columns:
             X[col] = X[col].where(X[col].isin(self.top_categories[col]), "Other")
+        return X
+    
+class AirportMetadataPreprocessor():
+    def __init__(
+            self,
+            added_airport_feature_cols = ["Division"]
+        ):
+        self.added_airport_feature_cols = added_airport_feature_cols
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        X = X.copy()
+        # join in airport names by code
+        # https://www.transtats.bts.gov/FieldInfo.asp?Svryq_Qr5p=b4vtv0%FDNv42146%FP%FDNv42146%FDVQ.%FDN0%FDvqr06vsvpn6v10%FD07zor4%FDn55vt0rq%FDoB%FDhf%FDQbg%FD61%FDvqr06vsB%FDn%FD70v37r%FDnv42146.%FD%FDh5r%FD6uv5%FDsvryq%FDs14%FDnv42146%FDn0nyB5v5%FDnp4155%FDn%FD4n0tr%FD1s%FDBrn45%FDorpn75r%FDn0%FDnv42146%FDpn0%FDpun0tr%FDv65%FDnv42146%FDp1qr%FDn0q%FDnv42146%FDp1qr5%FDpn0%FDor%FD4r75rq.&Svryq_gB2r=a7z&Y11x72_gnoyr=Y_NVecbeg_VQ&gnoyr_VQ=FMF&flf_gnoyr_anzr=g_gEDD_ZNeXRg_NYY_PNeeVRe&fB5_Svryq_anzr=beVTVa_NVecbeg_VQ
+        # NOTE: regions are defined from this CSV https://github.com/cphalpert/census-regions/blob/master/us%20census%20bureau%20regions%20and%20divisions.csv
+        airport_id_map = pd.read_csv(DATA_PATH / AIRPORT_CODES_FILENAME)
+        airport_id_map = airport_id_map[["Code"] + self.added_airport_feature_cols]
+        X = X.join(airport_id_map.set_index("Code").rename(columns={col:f"Origin{col.replace("_", "")}" for col in airport_id_map.columns if col != "Code"}), on="OriginAirportID")
+        X = X.join(airport_id_map.set_index("Code").rename(columns={col:f"Dest{col.replace("_", "")}" for col in airport_id_map.columns if col != "Code"}), on="DestAirportID")
+
         return X
 
 # Function to get feature names after transformation
@@ -135,7 +161,7 @@ class FlightPerformanceModel():
             "one_hot": one_hot_features,
             "top_k": top_k_features,
             "numerical": numerical_features,
-            "datetime": datetime_features
+            "datetime": datetime_features,
         }
         self.flight_date_col = flight_date_col
         self.dep_time_col = dep_time_col
@@ -235,3 +261,17 @@ class FlightPerformanceModel():
         if model is None:
             raise ValueError(f"Model for target {target_col} has not been trained.")
         return model.predict(X_test)
+
+    def predict_on_time(self, df):
+        df_pred = pd.DataFrame()
+        for target_col in [c.DELAYED_COL, c.DELAY_DURATION_COL, c.CANCELLED_COL]:
+            model = self.estimators.get(target_col)
+            if model is None:
+                raise ValueError(f"Model for target {target_col} has not been trained.")
+            if target_col == c.DELAY_DURATION_COL:
+                y_pred = self.predict(df, target_col=target_col)
+            else:
+                y_pred = self.predict_proba(df, target_col=target_col)
+            df_pred[target_col] = y_pred
+        
+        return df_pred

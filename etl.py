@@ -31,9 +31,9 @@ SELECTED_COLS = [
     # airline identifiers
     "Reporting_Airline", # "DOT_ID_Reporting_Airline", "IATA_CODE_Reporting_Airline",
     # origin
-    "OriginAirportID", "OriginCityName", # "OriginAirportSeqID", "OriginCityMarketID", "Origin", "OriginCityName", "OriginState", "OriginStateFips", "OriginStateName", "OriginWac",
+    "Origin", "OriginAirportID", "OriginCityName", # "OriginAirportSeqID", "OriginCityMarketID", "Origin", "OriginCityName", "OriginState", "OriginStateFips", "OriginStateName", "OriginWac",
     # destination
-    "DestAirportID", "DestCityName", # "DestAirportSeqID", "DestCityMarketID", "Dest", "DestCityName", "DestState", "DestStateFips", "DestStateName", "DestWac",
+    "Dest", "DestAirportID", "DestCityName", # "DestAirportSeqID", "DestCityMarketID", "Dest", "DestCityName", "DestState", "DestStateFips", "DestStateName", "DestWac",
     # delay data
     "DepDelay","DepDelayMinutes","DepDel15","DepartureDelayGroups",
     "ArrDelay","ArrDelayMinutes","ArrDel15", "ArrivalDelayGroups",
