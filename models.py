@@ -53,7 +53,7 @@ class DateTimeFeatureExtractor(BaseEstimator, TransformerMixin):
         X = X.copy()
         # Ensure FlightDate and CRSDepTime are in appropriate datetime formats
         X[self.flight_date_col] = pd.to_datetime(X[self.flight_date_col], errors='coerce')
-        X[self.dep_time_col] = pd.to_datetime(X[self.dep_time_col], format='%H:%M', errors='coerce')
+        X[self.dep_time_col] = pd.to_datetime(X[self.dep_time_col], format='%H:%M:%S', errors='coerce')
 
         # Extract new features
         if "is_weekend" in self.derived_columns:
